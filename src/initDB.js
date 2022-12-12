@@ -1,3 +1,4 @@
+const OrderModal = require("./orderModal");
 const ProductModel = require("./productModel");
 const products = [
   {
@@ -74,8 +75,9 @@ const products = [
 
 async function initDbProducts() {
   await ProductModel.deleteMany({});
-  products.forEach(async (product, index) => {
-    await new ProductModel({ id: parseInt(index + 1), ...product }).save();
+  await OrderModal.deleteMany({});
+  products.forEach(async (product) => {
+    await new ProductModel({ id: require("uuid").v4(), ...product }).save();
   });
 }
 

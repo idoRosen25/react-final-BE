@@ -4,7 +4,7 @@ const app = express();
 const cors = require("cors");
 var mongoose = require("mongoose");
 const ProductModel = require("./productModel");
-
+const OrderModel = require("./orderModal");
 const { initDbProducts } = require("./initDB");
 
 app.use(bp.urlencoded({ extended: true }));
@@ -20,10 +20,19 @@ app.get("/products", async (req, res) => {
     res.status(400).json({ products: null });
   }
 });
+
 app.post("/order", async (req, res) => {
-  const { cartItems } = req.body;
-  console.log("cart items: ", cartItems);
-  res.status(200).json({ order: null });
+  const { items, userData } = req.body;
+  if (items.length && userData) {
+    const order = await OrderModel.create({
+      id: require("uuid").v4(),
+      items,
+      userData,
+    });
+    res.status(200).json({ order, message: "order created successfully" });
+  } else {
+    res.status(400).json({ order: null, message: "order not created" });
+  }
 });
 
 app.listen(5200, async () => {
