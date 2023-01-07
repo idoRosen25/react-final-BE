@@ -7,6 +7,8 @@ const ProductModel = require("./productModel");
 const OrderModel = require("./orderModal");
 const { initDbProducts } = require("./initDB");
 
+const userRoutes = require("./routes/user");
+
 app.use(bp.urlencoded({ extended: true }));
 app.use(bp.json());
 app.use(cors({ origin: "*" }));
@@ -34,6 +36,8 @@ app.post("/order", async (req, res) => {
     res.status(400).json({ order: null, message: "order not created" });
   }
 });
+
+app.use("/user", userRoutes);
 
 app.listen(5200, async () => {
   console.log("server running on port:5200");
