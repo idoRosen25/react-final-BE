@@ -34,8 +34,6 @@ async function initDbProducts() {
   for (let i = 0; i < 5; i++) {
     const hotelName = `${faker.company.name()} Hotel`;
     const address = {
-      long: parseInt(addressFaker.longitude()),
-      lat: parseInt(addressFaker.latitude()),
       city: addressFaker.city(),
       street: addressFaker.streetAddress(),
       country: addressFaker.country(),

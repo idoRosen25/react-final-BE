@@ -40,8 +40,6 @@ const Hotel = mongoose.Schema(
       },
     },
     address: {
-      long: { type: Number, required: true },
-      lat: { type: Number, requires: true },
       city: { type: String, required: true },
       street: { type: String, required: true },
       country: { type: String, required: true },
