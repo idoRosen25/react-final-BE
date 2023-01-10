@@ -39,25 +39,30 @@ async function initDbProducts() {
       country: addressFaker.country(),
     };
 
-    await HotelModel({
-      id: uuid.v4(),
-      name: hotelName,
-      address,
-      rooms: {
-        standard: {
-          id: standard._id,
-          count: commerceFaker.price(10, 15, 0),
+    try {
+      await HotelModel({
+        id: uuid.v4(),
+        name: hotelName,
+        address,
+        rooms: {
+          standard: {
+            id: standard._id,
+            count: commerceFaker.price(10, 15, 0),
+          },
+          delux: {
+            id: delux._id,
+            count: commerceFaker.price(5, 10, 0),
+          },
+          luxury: {
+            id: luxury._id,
+            count: commerceFaker.price(0, 5, 0),
+          },
         },
-        delux: {
-          id: delux._id,
-          count: commerceFaker.price(5, 10, 0),
-        },
-        luxury: {
-          id: luxury._id,
-          count: commerceFaker.price(0, 5, 0),
-        },
-      },
-    }).save();
+      }).save();
+    } catch (error) {
+      console.error(`Couldn't add hotel with this params`);
+      i--;
+    }
   }
 }
 
