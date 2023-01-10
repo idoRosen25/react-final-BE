@@ -3,41 +3,22 @@ const bp = require("body-parser");
 const app = express();
 const cors = require("cors");
 var mongoose = require("mongoose");
-const HotelModel = require("./model/hotelModel");
 
 const { initDbProducts } = require("./initDB");
 
 const userRoutes = require("./routes/user");
+const hotelRoutes = require("./routes/hotels");
+const roomRoutes = require("./routes/rooms");
+const reservationRoutes = require("./routes/reservations");
 
 app.use(bp.urlencoded({ extended: true }));
 app.use(bp.json());
 app.use(cors({ origin: "*" }));
 
-app.get("/products", async (req, res) => {
-  try {
-    res.status(200).json({
-      hotels: await HotelModel.find({}),
-    });
-  } catch (error) {
-    res.status(400).json({ hotels: null });
-  }
-});
-
-app.post("/order", async (req, res) => {
-  const { items, userData } = req.body;
-  if (items.length && userData) {
-    const order = await OrderModel.create({
-      id: require("uuid").v4(),
-      items,
-      userData,
-    });
-    res.status(200).json({ order, message: "order created successfully" });
-  } else {
-    res.status(400).json({ order: null, message: "order not created" });
-  }
-});
-
 app.use("/user", userRoutes);
+app.use("/hotel", hotelRoutes);
+app.use("/room", roomRoutes);
+app.use("/reservation", reservationRoutes);
 
 app.listen(5200, async () => {
   console.log("server running on port:5200");
