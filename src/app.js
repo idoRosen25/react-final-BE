@@ -3,8 +3,8 @@ const bp = require("body-parser");
 const app = express();
 const cors = require("cors");
 var mongoose = require("mongoose");
-const ProductModel = require("./productModel");
-const OrderModel = require("./orderModal");
+const HotelModel = require("./model/hotelModel");
+
 const { initDbProducts } = require("./initDB");
 
 const userRoutes = require("./routes/user");
@@ -16,10 +16,10 @@ app.use(cors({ origin: "*" }));
 app.get("/products", async (req, res) => {
   try {
     res.status(200).json({
-      products: await ProductModel.find({}),
+      hotels: await HotelModel.find({}),
     });
   } catch (error) {
-    res.status(400).json({ products: null });
+    res.status(400).json({ hotels: null });
   }
 });
 
@@ -49,6 +49,6 @@ app.listen(5200, async () => {
       await initDbProducts();
     })
     .catch((err) => {
-      console.log("couldnt connect to db from mongoose");
+      console.log("couldnt connect to db from mongoose: ", err);
     });
 });
