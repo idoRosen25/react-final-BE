@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const HotelModel = require("../model/hotelModel");
 const RoomModel = require("../model/roomModel");
-const roomIds = RoomModel.find({}).then((res) => res.map((room) => room._id));
 
 router.get("/", async (req, res) => {
   const allHotels = await HotelModel.find();
@@ -10,9 +9,10 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  const roomIds = await RoomModel.find({}, "_id roomType");
+
   const { name, address, rooms } = req.body;
 
-  console.log("hotel data: ", { name, address, rooms });
   if (!(name && address)) {
     res.status(400).json({ message: "INVALID_DATA" });
   }
@@ -24,19 +24,20 @@ router.post("/", async (req, res) => {
       address,
       rooms: {
         standard: {
-          id: roomIds[0],
+          id: roomIds.find((room) => room.roomType === "standard")?._id,
           count: parseInt(rooms.standard),
         },
         delux: {
-          id: roomIds[1],
+          id: roomIds.find((room) => room.roomType === "delux")?._id,
           count: parseInt(rooms.delux),
         },
         luxury: {
-          id: roomIds[2],
+          id: roomIds.find((room) => room.roomType === "luxury")?._id,
           count: parseInt(rooms.luxury),
         },
       },
     }).save();
+
     res.json({ code: 200, hotel });
   } catch (error) {
     console.error("error adding new hotel: ", error);
@@ -47,7 +48,21 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-  res.json({ message: "update products" });
+  const { hotel } = req.body;
+  try {
+    await HotelModel.findOneAndUpdate({ id: hotel.id }, hotel);
+
+    res.status(200).json({
+      code: 200,
+      status: "success",
+      hotel,
+    });
+  } catch (error) {
+    console.error("update error: ", error);
+    res
+      .status(400)
+      .json({ code: 400, status: "error", message: error?.message || error });
+  }
 });
 
 router.delete("/", async (req, res) => {
