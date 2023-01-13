@@ -8,7 +8,6 @@ const Room = mongoose.Schema(
     },
     roomType: {
       type: String,
-      enum: ["standard", "delux", "luxury"],
       default: "standard",
       required: false,
     },
