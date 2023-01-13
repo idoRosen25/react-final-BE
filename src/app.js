@@ -10,6 +10,7 @@ const userRoutes = require("./routes/user");
 const hotelRoutes = require("./routes/hotels");
 const roomRoutes = require("./routes/rooms");
 const reservationRoutes = require("./routes/reservations");
+const statsRoutes = require("./routes/stats");
 
 app.use(bp.urlencoded({ extended: true }));
 app.use(bp.json());
@@ -19,6 +20,11 @@ app.use("/user", userRoutes);
 app.use("/hotel", hotelRoutes);
 app.use("/room", roomRoutes);
 app.use("/reservation", reservationRoutes);
+app.use("/stats", statsRoutes);
+
+app.use("*", async (req, res) => {
+  res.status(404).json({ message: "not found" });
+});
 
 app.listen(5200, async () => {
   console.log("server running on port:5200");
