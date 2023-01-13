@@ -21,41 +21,6 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-router.get("/:hotelId", async (req, res) => {
-  try {
-    const { hotelId } = req.params;
-    if (!hotelId) {
-      throw new Error("INVALID_HOTEL_NAME");
-    }
-
-    res.json({
-      code: 200,
-      data: await Reservation.find({ hotelId }).sort({ createdAt: -1 }),
-    });
-  } catch (error) {
-    res.json({
-      code: 500,
-      status: "error",
-      message: error?.message || error,
-    });
-  }
-});
-
-router.get("/", async (req, res) => {
-  try {
-    res.json({
-      code: 200,
-      data: await ReservationModel.find({}).sort({ createdAt: -1 }),
-    });
-  } catch (error) {
-    res.json({
-      code: 500,
-      status: "error",
-      message: error?.message || error,
-    });
-  }
-});
-
 router.post("/", async (req, res) => {
   const { userId, hotelId, roomId, checkInDate, checkOutDate } = req.body;
 

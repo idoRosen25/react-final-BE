@@ -12,8 +12,8 @@ const Reservation = mongoose.Schema(
       ref: "Room",
       required: true,
     },
-    checkInDate: { type: Date, required: true },
-    checkOutDate: { type: Date, required: true },
+    checkInDate: { type: String, required: true },
+    checkOutDate: { type: String, required: true },
   },
   { timestamps: true }
 );
