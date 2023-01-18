@@ -1,8 +1,24 @@
 const router = require("express").Router();
 const ReservationModel = require("../model/reservationModel");
 
-router.get("/:userId", async (req, res) => {
+router.get("/", async (req, res) => {
+  try {
+    res.json({
+      code: 200,
+      data: await ReservationModel.find(),
+    });
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "error",
+      message: error?.message || error,
+    });
+  }
+});
+
+router.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
+  console.log("userId: ", userId);
   try {
     if (!userId) {
       throw new Error("INVALID_USER_ID");
@@ -29,6 +45,20 @@ router.post("/", async (req, res) => {
       throw new Error("INVALID_RESERVATION_DATA");
     }
 
+    const existingReservation = await ReservationModel.findOne({
+      hotelId,
+      roomId,
+      $or: [
+        {
+          checkInDate: { $gte: checkInDate, $lte: checkOutDate },
+        },
+        { checkOutDate: { $gte: checkInDate, $lte: checkOutDate } },
+      ],
+    });
+
+    if (existingReservation) {
+      throw new Error("RESERVATION_DATES_INVALID");
+    }
     const reservation = await new ReservationModel({
       userId,
       hotelId,

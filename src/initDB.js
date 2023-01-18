@@ -1,5 +1,7 @@
 const HotelModel = require("./model/hotelModel");
 const RoomModel = require("./model/roomModel");
+const ReservationModel = require("./model/reservationModel");
+
 const uuid = require("uuid");
 const { faker } = require("@faker-js/faker");
 
@@ -7,6 +9,7 @@ const commerceFaker = faker.commerce;
 const addressFaker = faker.address;
 
 async function initDbProducts() {
+  await ReservationModel.deleteMany({});
   await RoomModel.deleteMany({});
   await HotelModel.deleteMany({});
 
