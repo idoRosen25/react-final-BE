@@ -9,6 +9,11 @@ const commerceFaker = faker.commerce;
 const addressFaker = faker.address;
 
 async function initDbProducts() {
+  const data = await HotelModel.find();
+
+  if (data) {
+    return;
+  }
   await ReservationModel.deleteMany({});
   await RoomModel.deleteMany({});
   await HotelModel.deleteMany({});
@@ -46,19 +51,17 @@ async function initDbProducts() {
       await HotelModel({
         id: uuid.v4(),
         name: hotelName,
+        image: faker.image.city(640, 480, true),
         address,
         rooms: {
           standard: {
             id: standard._id,
-            count: commerceFaker.price(10, 15, 0),
           },
           delux: {
             id: delux._id,
-            count: commerceFaker.price(5, 10, 0),
           },
           luxury: {
             id: luxury._id,
-            count: commerceFaker.price(0, 5, 0),
           },
         },
       }).save();

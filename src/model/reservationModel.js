@@ -14,6 +14,17 @@ const Reservation = mongoose.Schema(
     },
     checkInDate: { type: String, required: true },
     checkOutDate: { type: String, required: true },
+    numberOfGuests: { type: Number, default: 1 },
+    guest: {
+      firstName: { type: String, required: true },
+      lastName: { type: String, required: true },
+      email: { type: String, required: true },
+      address: {
+        city: { type: String },
+        street: { type: String },
+        country: { type: String },
+      },
+    },
   },
   { timestamps: true }
 );

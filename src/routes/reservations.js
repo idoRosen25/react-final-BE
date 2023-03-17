@@ -1,6 +1,8 @@
 const router = require("express").Router();
+const HotelModel = require("../model/hotelModel");
 const ReservationModel = require("../model/reservationModel");
-
+const RoomModel = require("../model/roomModel");
+const { ObjectId } = require("mongodb");
 router.get("/", async (req, res) => {
   try {
     res.json({
@@ -18,7 +20,6 @@ router.get("/", async (req, res) => {
 
 router.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
-  console.log("userId: ", userId);
   try {
     if (!userId) {
       throw new Error("INVALID_USER_ID");
@@ -38,33 +39,30 @@ router.get("/user/:userId", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { userId, hotelId, roomId, checkInDate, checkOutDate } = req.body;
+  const {
+    userId,
+    hotelId,
+    roomId,
+    checkInDate,
+    checkOutDate,
+    numberOfGuests,
+    guest,
+  } = req.body;
+  console.log("req.body: ", req.body);
 
   try {
     if (!(userId && hotelId && roomId && checkInDate && checkOutDate)) {
-      throw new Error("INVALID_RESERVATION_DATA");
+      throw new Error("ReservationData is not valid. Try Again");
     }
 
-    const existingReservation = await ReservationModel.findOne({
-      hotelId,
-      roomId,
-      $or: [
-        {
-          checkInDate: { $gte: checkInDate, $lte: checkOutDate },
-        },
-        { checkOutDate: { $gte: checkInDate, $lte: checkOutDate } },
-      ],
-    });
-
-    if (existingReservation) {
-      throw new Error("RESERVATION_DATES_INVALID");
-    }
     const reservation = await new ReservationModel({
       userId,
       hotelId,
       roomId,
       checkInDate,
       checkOutDate,
+      numberOfGuests,
+      guest,
     }).save();
 
     res.json({

@@ -50,8 +50,6 @@ router.put("/", async (req, res) => {
       { new: true }
     );
 
-    console.log("update", update);
-
     res.json({
       code: 200,
       status: "updated successfully",

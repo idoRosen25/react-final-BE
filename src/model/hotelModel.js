@@ -6,40 +6,25 @@ const Hotel = mongoose.Schema(
       required: true,
       unique: true,
     },
+    image: {
+      type: String,
+      required: true,
+    },
     name: { type: String, dropDups: true },
     rooms: {
-      type: {
-        standard: {
-          id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Room",
-          },
-          count: {
-            type: Number,
-            default: 1,
-          },
-        },
-        delux: {
-          id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Room",
-          },
-          count: {
-            type: Number,
-            default: 1,
-          },
-        },
-        luxury: {
-          id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Room",
-          },
-          count: {
-            type: Number,
-            default: 1,
-          },
+      standard: {
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Room",
         },
       },
+      delux: {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
+      },
+      luxury: {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
+      },
+
       index: false,
       unique: false,
     },

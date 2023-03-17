@@ -17,7 +17,7 @@ app.use(bp.json());
 app.use(cors({ origin: "*" }));
 
 app.use("/user", userRoutes);
-app.use("/hotel", hotelRoutes);
+app.use("/hotels", hotelRoutes);
 app.use("/room", roomRoutes);
 app.use("/reservation", reservationRoutes);
 app.use("/stats", statsRoutes);
@@ -33,7 +33,7 @@ app.listen(5200, async () => {
     .connect("mongodb://localhost:27017/myapp")
     .then(async () => {
       console.log("connected to db using mongoose");
-      await initDbProducts();
+      initDbProducts().then(() => console.log("db init done"));
     })
     .catch((err) => {
       console.log("couldnt connect to db from mongoose: ", err);
