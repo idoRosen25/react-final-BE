@@ -1,42 +1,67 @@
 const router = require("express").Router();
 const ReservationModel = require("../model/reservationModel");
+const { ObjectId } = require("mongodb");
+const HotelModel = require("../model/hotelModel");
+const RoomModel = require("../model/roomModel");
 
-router.get("/hotel", async (req, res) => {
-  const { id, span } = req.body;
+router.get("/hotel/:id/months", async (req, res) => {
+  const { id } = req.params;
 
   try {
     if (!id) {
       throw new Error("INVALID_HOTEL_ID");
     }
 
-    // timeSpan is 24 hours by default;
-    let spanTime = 24 * 60 * 60 * 1000;
+    const rooms = await RoomModel.find({});
+    const hotelRes = await HotelModel.findOne({
+      id,
+    });
 
-    if (span !== "day") {
-      switch (span) {
-        case "week":
-          spanTime *= 7;
-          break;
-        case "month":
-          spanTime *= 30;
-          break;
-        case "year":
-          spanTime *= 365;
-          break;
+    const reservations = rooms.map((room) =>
+      ReservationModel.aggregate([
+        {
+          $match: {
+            hotelId: hotelRes._id,
+            roomId: room._id,
+          },
+        },
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            count: { $sum: 1 },
+          },
+        },
+      ])
+    );
+
+    const resolvedReservations = await Promise.all(reservations);
+    const reducedReservations = {
+      1: [],
+      2: [],
+      3: [],
+      4: [],
+      5: [],
+      6: [],
+      7: [],
+      8: [],
+      9: [],
+      10: [],
+      11: [],
+      12: [],
+    };
+
+    for (const bookingCount of resolvedReservations) {
+      for (const booking of bookingCount) {
+        reducedReservations[booking._id] = [
+          ...reducedReservations[booking._id],
+          booking.count,
+        ];
       }
     }
 
-    const reservations = await ReservationModel.find({
-      hotelId: id,
-      createdAt: {
-        $gte: new Date(Date.now() - spanTime).toISOString().split("T")[0],
-        $lte: new Date(Date.now()).toISOString().split("T")[0],
-      },
-    }).sort({ createdAt: -1 });
-
     res.json({
       code: 200,
-      data: reservations,
+      data: reducedReservations,
     });
   } catch (error) {
     res.json({
