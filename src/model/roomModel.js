@@ -1,17 +1,17 @@
 var mongoose = require("mongoose");
 const Room = mongoose.Schema(
   {
-    roomId: {
+    room: {
       required: true,
       type: String,
       dropDups: true,
     },
-    roomType: {
+    type: {
       type: String,
       default: "standard",
       required: false,
     },
-    roomCost: {
+    cost: {
       type: Number,
       required: true,
     },

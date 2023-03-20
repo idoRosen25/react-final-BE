@@ -1,6 +1,7 @@
 const HotelModel = require("./model/hotelModel");
 const RoomModel = require("./model/roomModel");
 const ReservationModel = require("./model/reservationModel");
+const { ObjectId } = require("mongodb");
 
 const uuid = require("uuid");
 const { faker } = require("@faker-js/faker");
@@ -19,23 +20,23 @@ async function initDbProducts() {
   await HotelModel.deleteMany({});
 
   const standard = await RoomModel({
-    roomId: uuid.v4(),
-    roomType: "standard",
-    roomCost: commerceFaker.price(15, 50, 0),
+    room: uuid.v4(),
+    type: "standard",
+    cost: commerceFaker.price(15, 50, 0),
     numOfBeds: 2,
   }).save();
 
   const delux = await RoomModel({
-    roomId: uuid.v4(),
-    roomType: "delux",
-    roomCost: commerceFaker.price(80, 140, 0),
+    room: uuid.v4(),
+    type: "delux",
+    cost: commerceFaker.price(80, 140, 0),
     numOfBeds: 4,
   }).save();
 
   const luxury = await RoomModel({
-    roomId: uuid.v4(),
-    roomType: "luxury",
-    roomCost: commerceFaker.price(160, 220, 0),
+    room: uuid.v4(),
+    type: "luxury",
+    cost: commerceFaker.price(160, 220, 0),
     numOfBeds: 4,
   }).save();
 
@@ -53,17 +54,23 @@ async function initDbProducts() {
         name: hotelName,
         image: faker.image.city(640, 480, true),
         address,
-        rooms: {
-          standard: {
-            id: standard._id,
+        rooms: [
+          {
+            room: standard._id,
+            available: 30,
+            booked: 0,
           },
-          delux: {
-            id: delux._id,
+          {
+            room: delux._id,
+            available: 15,
+            booked: 0,
           },
-          luxury: {
-            id: luxury._id,
+          {
+            room: luxury._id,
+            available: 6,
+            booked: 0,
           },
-        },
+        ],
       }).save();
     } catch (error) {
       console.error(`Couldn't add hotel with this params`);

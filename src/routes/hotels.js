@@ -2,6 +2,7 @@ const router = require("express").Router();
 const HotelModel = require("../model/hotelModel");
 const RoomModel = require("../model/roomModel");
 const ReservationModel = require("../model/reservationModel");
+const uuid = require("uuid");
 
 router.get("", async (req, res) => {
   const allHotels = await HotelModel.find();
@@ -20,23 +21,26 @@ router.post("", async (req, res) => {
 
   try {
     const hotel = await HotelModel({
-      id: require("uuid").v4(),
+      id: uuid.v4(),
       name,
       address,
-      rooms: {
-        standard: {
-          id: roomIds.find((room) => room.roomType === "standard")?._id,
-          count: parseInt(rooms.standard),
+      rooms: [
+        {
+          room: roomIds.find((room) => room.roomType === "standard")?._id,
+          available: parseInt(rooms.standard),
+          booked: 0,
         },
-        delux: {
-          id: roomIds.find((room) => room.roomType === "delux")?._id,
-          count: parseInt(rooms.delux),
+        {
+          room: roomIds.find((room) => room.roomType === "delux")?._id,
+          available: parseInt(rooms.delux),
+          booked: 0,
         },
-        luxury: {
-          id: roomIds.find((room) => room.roomType === "luxury")?._id,
-          count: parseInt(rooms.luxury),
+        {
+          room: roomIds.find((room) => room.roomType === "luxury")?._id,
+          available: parseInt(rooms.luxury),
+          booked: 0,
         },
-      },
+      ],
     }).save();
 
     res.json({ code: 200, hotel });
@@ -67,9 +71,7 @@ router.get("/:id", async (req, res) => {
 
   try {
     if (!id) throw new Error("INVALID_ID");
-    const hotel = await HotelModel.findOne({ id }).populate(
-      "rooms.standard.id rooms.delux.id rooms.luxury.id"
-    );
+    const hotel = await HotelModel.findOne({ id }).populate("rooms.room");
 
     res.json({ code: 200, hotel });
   } catch (error) {

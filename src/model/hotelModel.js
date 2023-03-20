@@ -12,21 +12,14 @@ const Hotel = mongoose.Schema(
     },
     name: { type: String, dropDups: true },
     rooms: {
-      standard: {
-        id: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Room",
+      type: [
+        {
+          room: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
+          available: Number,
+          booked: Number,
         },
-      },
-      delux: {
-        id: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
-      },
-      luxury: {
-        id: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
-      },
-
-      index: false,
-      unique: false,
+      ],
+      required: true,
     },
     address: {
       city: { type: String, required: true },

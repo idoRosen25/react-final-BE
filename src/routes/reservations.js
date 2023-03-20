@@ -1,13 +1,12 @@
 const router = require("express").Router();
 const HotelModel = require("../model/hotelModel");
 const ReservationModel = require("../model/reservationModel");
-const RoomModel = require("../model/roomModel");
-const { ObjectId } = require("mongodb");
+
 router.get("/", async (req, res) => {
   try {
     res.json({
       code: 200,
-      data: await ReservationModel.find(),
+      reservations: await ReservationModel.find(),
     });
   } catch (error) {
     res.json({
@@ -27,7 +26,33 @@ router.get("/user/:userId", async (req, res) => {
 
     res.json({
       code: 200,
-      data: await ReservationModel.find({ userId }).sort({ createdAt: -1 }),
+      reservations: await ReservationModel.find({ userId })
+        .populate("hotelId roomId")
+        .sort({
+          createdAt: -1,
+        }),
+    });
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "error",
+      message: error?.message || error,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!id) {
+      throw new Error("INVALID_RESERVTION_ID");
+    }
+
+    res.json({
+      code: 200,
+      reservation: await ReservationModel.findById(id).populate(
+        "hotelId roomId"
+      ),
     });
   } catch (error) {
     res.json({
@@ -48,7 +73,6 @@ router.post("/", async (req, res) => {
     numberOfGuests,
     guest,
   } = req.body;
-  console.log("req.body: ", req.body);
 
   try {
     if (!(userId && hotelId && roomId && checkInDate && checkOutDate)) {
@@ -64,6 +88,19 @@ router.post("/", async (req, res) => {
       numberOfGuests,
       guest,
     }).save();
+
+    const hotel = await HotelModel.findById(hotelId);
+    await HotelModel.findByIdAndUpdate(hotelId, {
+      rooms: hotel.rooms.map((room) =>
+        room.room.toString() === roomId
+          ? {
+              room: room.room,
+              available: room.available,
+              booked: room.booked + 1,
+            }
+          : room
+      ),
+    });
 
     res.json({
       code: 200,
@@ -101,15 +138,31 @@ router.put("/", async (req, res) => {
   }
 });
 
-router.delete("/", async (req, res) => {
-  const { reservationId } = req.body;
+router.delete("/:id", async (req, res) => {
+  const { id: reservationId } = req.params;
 
   try {
     if (!reservationId) {
       throw new Error("INVALID_RESERVATION_ID");
     }
+    const reservation = await ReservationModel.findById(reservationId).populate(
+      "roomId"
+    );
 
+    console.log("reservation: ", reservation);
     const resDelete = await ReservationModel.deleteOne({ _id: reservationId });
+    const hotel = await HotelModel.findById(reservation.hotelId);
+    await HotelModel.findByIdAndUpdate(reservation.hotelId, {
+      rooms: hotel.rooms.map((room) =>
+        room.room.toString() === reservation.roomId.toString()
+          ? {
+              room: room.room,
+              available: room.available,
+              booked: room.booked + 1,
+            }
+          : room
+      ),
+    });
     res.json({
       code: 200,
       status: "deleted successfully",
