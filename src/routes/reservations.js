@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const HotelModel = require("../model/hotelModel");
 const ReservationModel = require("../model/reservationModel");
+const RoomModel = require("../model/roomModel");
 
 router.get("/", async (req, res) => {
   try {
@@ -116,18 +117,24 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-  const { reservation } = req.body;
+  const reservation = req.body;
 
   try {
+    const room = await RoomModel.findOne({ type: reservation.type });
     const update = await ReservationModel.findOneAndUpdate(
       { _id: reservation._id },
-      reservation
+      {
+        checkInDate: reservation.checkInDate,
+        checkOutDate: reservation.checkOutDate,
+        numberOfGuests: reservation.numberOfGuests,
+        roomId: room._id,
+      }
     );
 
     res.json({
       code: 200,
       status: "updated successfully",
-      data: { ...update },
+      reservation: { ...update },
     });
   } catch (error) {
     res.json({
@@ -149,7 +156,6 @@ router.delete("/:id", async (req, res) => {
       "roomId"
     );
 
-    console.log("reservation: ", reservation);
     const resDelete = await ReservationModel.deleteOne({ _id: reservationId });
     const hotel = await HotelModel.findById(reservation.hotelId);
     await HotelModel.findByIdAndUpdate(reservation.hotelId, {
